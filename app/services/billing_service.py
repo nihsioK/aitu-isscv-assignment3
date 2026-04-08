@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from app.repositories import invoice_repository, user_repository, tariff_repository
 from app.schemas.invoice import GenerateInvoiceRequest
 from app.models.invoice import Invoice
+from app.core.logging import logger
 
 
 def generate_invoice(db: Session, data: GenerateInvoiceRequest) -> Invoice:
@@ -12,7 +13,7 @@ def generate_invoice(db: Session, data: GenerateInvoiceRequest) -> Invoice:
     if not tariff_repository.get_by_id(db, data.tariff_id):
         raise HTTPException(status_code=404, detail="Tariff not found")
 
-    return invoice_repository.create(
+    invoice = invoice_repository.create(
         db,
         user_id=data.user_id,
         tariff_id=data.tariff_id,
@@ -20,6 +21,8 @@ def generate_invoice(db: Session, data: GenerateInvoiceRequest) -> Invoice:
         amount=data.amount,
         currency=data.currency,
     )
+    logger.info("INVOICE_GENERATED invoice_id=%d user_id=%d period=%s", invoice.id, invoice.user_id, invoice.billing_period)
+    return invoice
 
 
 def get_my_invoices(db: Session, user_id: int) -> list[Invoice]:
@@ -31,8 +34,8 @@ def get_invoice(db: Session, invoice_id: int, requesting_user_id: int, is_admin:
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
 
-    # object-level ownership check — clients can only see their own invoices
     if not is_admin and invoice.user_id != requesting_user_id:
+        logger.warning("ACCESS_DENIED invoice_id=%d requesting_user_id=%d", invoice_id, requesting_user_id)
         raise HTTPException(status_code=403, detail="Access denied")
 
     return invoice

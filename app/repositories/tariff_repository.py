@@ -7,4 +7,4 @@ def get_by_id(db: Session, tariff_id: int) -> Tariff | None:
 
 
 def get_all_active(db: Session) -> list[Tariff]:
-    return db.query(Tariff).filter(Tariff.is_active == True).all()
+    return db.query(Tariff).filter(Tariff.is_active).all()

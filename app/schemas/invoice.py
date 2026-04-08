@@ -1,14 +1,15 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Annotated
+from pydantic import BaseModel, Field
 from app.models.invoice import InvoiceStatus
 
 
 class GenerateInvoiceRequest(BaseModel):
     user_id: int
     tariff_id: int
-    billing_period: str  # "YYYY-MM"
-    amount: float
-    currency: str = "KZT"
+    billing_period: Annotated[str, Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")]
+    amount: Annotated[float, Field(gt=0)]
+    currency: Annotated[str, Field(min_length=3, max_length=3)] = "KZT"
 
 
 class InvoiceResponse(BaseModel):
