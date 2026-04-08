@@ -3,8 +3,6 @@ from datetime import datetime, timezone
 from sqlalchemy import String, DateTime, Enum, Integer, ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
-from app.models.tariff import Tariff
-from app.models.user import User
 
 
 class InvoiceStatus(str, enum.Enum):

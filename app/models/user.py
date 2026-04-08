@@ -3,8 +3,6 @@ from datetime import datetime, timezone
 from sqlalchemy import String, Boolean, DateTime, Enum, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
-from app.models.invoice import Invoice
-from app.models.tariff import Tariff
 
 
 class Role(str, enum.Enum):
