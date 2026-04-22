@@ -31,11 +31,16 @@ def _seed(db) -> None:
     db.add_all([tariff_start, tariff_comfort])
     db.flush()
 
+    # Раньше здесь пароль был забит прямо в коде ("Password1!"). 
+    # Это плохая практика, поэтому вынес в переменные окружения.
+    # Если переменная не задана, используем заглушку для локальной разработки.
+    import os
+    admin_pass = os.getenv("ADMIN_INITIAL_PASSWORD", "ComplexPass123!")
     admin = User(
         username="daniyar",
         email="daniyar@kazakhtelecom.kz",
         phone_number="+77051234567",
-        password_hash=hash_password("Password1!"),
+        password_hash=hash_password(admin_pass),
         role=Role.ADMIN,
         is_active=True,
     )

@@ -32,6 +32,10 @@ services:
     environment:
       DATABASE_URL: postgresql://telecom_user:telecom_pass@db:5432/telecom_db
       REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     ports:
       - "8000:8000"
     depends_on:

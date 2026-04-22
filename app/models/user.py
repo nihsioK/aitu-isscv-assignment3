@@ -1,8 +1,15 @@
+from __future__ import annotations
 import enum
 from datetime import datetime, timezone
-from sqlalchemy import String, Boolean, DateTime, Enum, Integer, ForeignKey
+from typing import TYPE_CHECKING
+from sqlalchemy import String, DateTime, Enum, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.invoice import Invoice
+    from app.models.tariff import Tariff
+
 
 
 class Role(str, enum.Enum):

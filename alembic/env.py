@@ -5,8 +5,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+from app.core.config import settings
+from app.db.base import Base
+from app.models import user, tariff, invoice  # noqa: F401
+
+# this is the Alembic Config object, which provides access to the values within the .ini file in use.
 config = context.config
 
 # Interpret the config file for Python logging.
@@ -18,9 +21,6 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from app.core.config import settings
-from app.db.base import Base
-from app.models import user, tariff, invoice  # noqa: F401
 config.set_main_option("sqlalchemy.url", settings.database_url)
 target_metadata = Base.metadata
 

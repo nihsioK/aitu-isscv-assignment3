@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from app.api.routes import auth, tariffs, billing
+from app.api.routes import auth, tariffs, billing, debug
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import logger
 from app.db.init_db import seed_db
@@ -26,3 +26,4 @@ register_exception_handlers(app)
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(tariffs.router, prefix="/tariffs", tags=["tariffs"])
 app.include_router(billing.router, prefix="/billing", tags=["billing"])
+app.include_router(debug.router, prefix="/debug", tags=["debug"])

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from redis.exceptions import RedisError
+from typing import cast
 
 from app.repositories import user_repository
 from app.schemas.auth import RegisterRequest, LoginRequest, TokenResponse
@@ -20,17 +21,18 @@ def _login_failure_key(username: str) -> str:
 
 def _is_login_limited(username: str) -> bool:
     try:
-        attempts = redis_client.get(_login_failure_key(username))
-    except RedisError:
+        attempts_raw = cast(str | bytes | None, redis_client.get(_login_failure_key(username)))
+        attempts = int(attempts_raw) if attempts_raw is not None else 0
+    except (RedisError, ValueError):
         logger.warning("LOGIN_RATE_LIMIT_UNAVAILABLE username=<redacted>")
         return False
-    return int(attempts or 0) >= LOGIN_FAILURE_LIMIT
+    return attempts >= LOGIN_FAILURE_LIMIT
 
 
 def _record_login_failure(username: str) -> None:
     try:
         key = _login_failure_key(username)
-        attempts = redis_client.incr(key)
+        attempts = cast(int, redis_client.incr(key))
         if attempts == 1:
             redis_client.expire(key, LOGIN_FAILURE_TTL_SECONDS)
     except RedisError:
