@@ -35,4 +35,4 @@ mypy:
 	uv run mypy app
 
 test:
-	uv run pytest
+	uv run pytest tests -q

@@ -8,18 +8,25 @@ from app.core.logging import logger
 
 
 def generate_invoice(db: Session, data: GenerateInvoiceRequest) -> Invoice:
-    if not user_repository.get_by_id(db, data.user_id):
+    user = user_repository.get_by_id(db, data.user_id)
+    if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    if not tariff_repository.get_by_id(db, data.tariff_id):
-        raise HTTPException(status_code=404, detail="Tariff not found")
+    if not user.active_tariff_id:
+        raise HTTPException(status_code=400, detail="User has no active tariff")
+
+    tariff = tariff_repository.get_by_id(db, user.active_tariff_id)
+    if not tariff or not tariff.is_active:
+        raise HTTPException(status_code=400, detail="Active tariff is not available")
+    if invoice_repository.get_by_user_and_period(db, user.id, data.billing_period):
+        raise HTTPException(status_code=409, detail="Invoice already exists for this period")
 
     invoice = invoice_repository.create(
         db,
-        user_id=data.user_id,
-        tariff_id=data.tariff_id,
+        user_id=user.id,
+        tariff_id=tariff.id,
         billing_period=data.billing_period,
-        amount=data.amount,
-        currency=data.currency,
+        amount=float(tariff.monthly_fee),
+        currency="KZT",
     )
     logger.info("INVOICE_GENERATED invoice_id=%d user_id=%d period=%s", invoice.id, invoice.user_id, invoice.billing_period)
     return invoice
@@ -36,6 +43,6 @@ def get_invoice(db: Session, invoice_id: int, requesting_user_id: int, is_admin:
 
     if not is_admin and invoice.user_id != requesting_user_id:
         logger.warning("ACCESS_DENIED invoice_id=%d requesting_user_id=%d", invoice_id, requesting_user_id)
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise HTTPException(status_code=404, detail="Invoice not found")
 
     return invoice

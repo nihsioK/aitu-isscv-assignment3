@@ -10,6 +10,14 @@ def get_by_user(db: Session, user_id: int) -> list[Invoice]:
     return db.query(Invoice).filter(Invoice.user_id == user_id).all()
 
 
+def get_by_user_and_period(db: Session, user_id: int, billing_period: str) -> Invoice | None:
+    return (
+        db.query(Invoice)
+        .filter(Invoice.user_id == user_id, Invoice.billing_period == billing_period)
+        .first()
+    )
+
+
 def create(
     db: Session,
     user_id: int,
