@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-Assisted Telecom Billing</title>
+  <link rel="stylesheet" href="/web/styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <strong>AI Billing</strong>
+      <span>Assignment 2</span>
+    </div>
+    <nav>
+      <button data-page-button="dashboard">Обзор</button>
+      <button data-page-button="plans">Тарифы</button>
+      <button data-page-button="invoices">Счета</button>
+      <button data-page-button="admin">Админ</button>
+    </nav>
+    <section class="session">
+      <span>JWT: <b id="tokenState">нет</b></span>
+      <button data-modal="loginDialog">Войти</button>
+      <button data-modal="registerDialog">Регистрация</button>
+      <button id="logoutButton">Сбросить token</button>
+    </section>
+  </aside>
+
+  <main>
+    <section class="page" data-page="dashboard">
+      <header>
+        <p>AI-assisted MVP</p>
+        <h1>Telecom billing dashboard</h1>
+      </header>
+      <div class="metrics">
+        <article><span>Тарифы</span><b id="planCount">0</b></article>
+        <article><span>Invoices</span><b id="invoiceCount">0</b></article>
+        <article><span>Пользователь</span><b id="userState">не вошел</b></article>
+        <article><span>Текущий тариф</span><b id="activePlan">нет</b></article>
+      </div>
+      <section class="panel">
+        <h2>Сценарий</h2>
+        <div class="steps">
+          <span>1. Register</span>
+          <span>2. Login</span>
+          <span>3. Activate plan</span>
+          <span>4. Generate and view invoice</span>
+        </div>
+      </section>
+    </section>
+
+    <section class="page" data-page="plans">
+      <header class="split">
+        <div>
+          <p>Catalog</p>
+          <h1>Тарифы</h1>
+        </div>
+        <button id="loadPlansButton">Обновить</button>
+      </header>
+      <div id="plansList" class="list"></div>
+    </section>
+
+    <section class="page" data-page="invoices">
+      <header class="split">
+        <div>
+          <p>Billing</p>
+          <h1>Мои счета</h1>
+        </div>
+        <button id="loadInvoicesButton">Обновить</button>
+      </header>
+      <div id="invoiceList" class="list"></div>
+    </section>
+
+    <section class="page" data-page="admin">
+      <header>
+        <p>Internal operation</p>
+        <h1>Генерация invoice</h1>
+      </header>
+      <section class="panel">
+        <label>Customer ID<input id="invoiceCustomerId" value="2" inputmode="numeric"></label>
+        <label>Billing month<input id="billingMonth" value="2026-05"></label>
+        <label>X-Internal-Billing-Key<input id="internalKey" type="password"></label>
+        <button id="generateInvoiceButton">Создать invoice</button>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="loginDialog">
+    <form method="dialog">
+      <h2>Вход</h2>
+      <label>Username<input id="loginUsername" value="ai_client"></label>
+      <label>Password<input id="loginPassword" type="password" value="ClientPass123!"></label>
+      <footer>
+        <button>Закрыть</button>
+        <button id="loginButton">Войти</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="registerDialog">
+    <form method="dialog">
+      <h2>Регистрация</h2>
+      <label>Username<input id="regUsername" value="ai_new_client"></label>
+      <label>Email<input id="regEmail" value="ai_new_client@example.com"></label>
+      <label>Phone<input id="regPhone" value="+77059990000"></label>
+      <label>Password<input id="regPassword" type="password" value="ClientPass123!"></label>
+      <footer>
+        <button>Закрыть</button>
+        <button id="registerButton">Создать</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="activateDialog">
+    <form method="dialog">
+      <h2>Активировать тариф</h2>
+      <label>Plan ID<input id="planId" inputmode="numeric"></label>
+      <footer>
+        <button>Закрыть</button>
+        <button id="activatePlanButton">Активировать</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <section class="api-console">
+    <button id="consoleToggle">Ответ API</button>
+    <pre id="apiOutput">ready</pre>
+  </section>
+  <div id="toast"></div>
+  <script src="/web/app.js" defer></script>
+</body>
+</html>
