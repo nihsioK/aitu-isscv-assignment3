@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telecom Billing MVP</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">TB</div>
+        <div>
+          <p class="brand-name">Telecom Billing</p>
+          <p class="brand-meta">Assignment 6</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Навигация">
+        <button data-route="overview" type="button">Обзор</button>
+        <button data-route="tariffs" type="button">Тарифы</button>
+        <button data-route="invoices" type="button">Счета</button>
+        <button data-route="admin" type="button">Админ</button>
+      </nav>
+
+      <div class="session-panel">
+        <div class="session-row">
+          <span>JWT token</span>
+          <strong id="tokenState" class="state">нет</strong>
+        </div>
+        <button class="button button-primary" type="button" data-modal="loginModal">Войти</button>
+        <button class="button" type="button" data-modal="registerModal">Регистрация</button>
+        <button class="button button-danger" type="button" id="logoutButton">Сбросить token</button>
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="page" data-page="overview">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1>Кабинет биллинга</h1>
+          </div>
+          <div class="toolbar">
+            <button class="button" type="button" id="refreshTariffsButton">Обновить тарифы</button>
+            <button class="button button-primary" type="button" id="refreshInvoicesButton">Мои счета</button>
+          </div>
+        </header>
+
+        <div class="metrics">
+          <article class="metric">
+            <span>Доступные тарифы</span>
+            <strong id="tariffCount">0</strong>
+            <p>Каталог тарифных планов.</p>
+          </article>
+          <article class="metric">
+            <span>Мои invoices</span>
+            <strong id="invoiceCount">0</strong>
+            <p>Доступны после входа.</p>
+          </article>
+          <article class="metric">
+            <span>Сессия</span>
+            <strong id="sessionMetric">Нет</strong>
+            <p>Token хранится в localStorage.</p>
+          </article>
+          <article class="metric">
+            <span>Текущий тариф</span>
+            <strong id="activeTariffMetric">Нет</strong>
+            <p id="activeTariffDescription">Войдите и загрузите профиль.</p>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Основной сценарий</h2>
+              <p>Регистрация, вход, выбор тарифа, генерация и просмотр счета.</p>
+            </div>
+          </div>
+          <div class="steps">
+            <article><b>1. Регистрация</b><span>Создать клиента или использовать demo user.</span></article>
+            <article><b>2. Login</b><span>Получить JWT для защищенных endpoints.</span></article>
+            <article><b>3. Тариф</b><span>Выбрать активный тариф текущего пользователя.</span></article>
+            <article><b>4. Invoice</b><span>Создать счет админом и проверить доступ клиента.</span></article>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" data-page="tariffs">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Plans</p>
+            <h1>Тарифы</h1>
+          </div>
+          <div class="toolbar">
+            <button class="button" type="button" id="loadTariffsButton">Обновить</button>
+            <button class="button button-primary" type="button" data-modal="activateTariffModal">Активировать</button>
+          </div>
+        </header>
+        <div id="tariffs" class="list">
+          <div class="empty">Нажмите “Обновить”, чтобы загрузить тарифы.</div>
+        </div>
+      </section>
+
+      <section class="page" data-page="invoices">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Billing</p>
+            <h1>Счета</h1>
+          </div>
+          <div class="toolbar">
+            <button class="button" type="button" id="loadInvoicesButton">Обновить</button>
+            <button class="button button-primary" type="button" data-modal="invoiceModal">Открыть invoice</button>
+          </div>
+        </header>
+        <div id="invoices" class="list">
+          <div class="empty">После входа загрузите список своих invoices.</div>
+        </div>
+      </section>
+
+      <section class="page" data-page="admin">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Internal</p>
+            <h1>Админ операции</h1>
+          </div>
+          <div class="toolbar">
+            <button class="button button-primary" type="button" data-modal="generateInvoiceModal">Создать invoice</button>
+          </div>
+        </header>
+        <section class="panel">
+          <h2>Генерация счета</h2>
+          <p>Операция требует admin JWT и заголовок X-Internal-API-Key.</p>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="loginModal">
+    <form method="dialog" class="modal">
+      <header>
+        <div>
+          <h2>Вход</h2>
+          <p>Получить JWT для защищенных операций.</p>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal-body">
+        <label>Username<input id="loginUsername" value="azamat"></label>
+        <label>Password<input id="loginPassword" type="password" value="ClientPass123!"></label>
+      </div>
+      <footer>
+        <button class="button" value="cancel">Отмена</button>
+        <button class="button button-primary" value="cancel" id="loginButton">Войти</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="registerModal">
+    <form method="dialog" class="modal">
+      <header>
+        <div>
+          <h2>Регистрация</h2>
+          <p>Создать нового клиента.</p>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal-body">
+        <label>Username<input id="regUsername" value="newclient"></label>
+        <label>Email<input id="regEmail" value="newclient@example.com"></label>
+        <label>Phone<input id="regPhone" value="+77050009999"></label>
+        <label>Password<input id="regPassword" type="password" value="ClientPass123!"></label>
+      </div>
+      <footer>
+        <button class="button" value="cancel">Отмена</button>
+        <button class="button button-primary" value="cancel" id="registerButton">Создать</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="activateTariffModal">
+    <form method="dialog" class="modal">
+      <header>
+        <div>
+          <h2>Активировать тариф</h2>
+          <p>Привязать тариф к текущему пользователю.</p>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal-body">
+        <label>Tariff ID<input id="tariffId" value="1" inputmode="numeric"></label>
+      </div>
+      <footer>
+        <button class="button" value="cancel">Отмена</button>
+        <button class="button button-primary" value="cancel" id="activateTariffButton">Активировать</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="invoiceModal">
+    <form method="dialog" class="modal">
+      <header>
+        <div>
+          <h2>Открыть invoice</h2>
+          <p>Проверка object-level authorization.</p>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal-body">
+        <label>Invoice ID<input id="invoiceId" value="1" inputmode="numeric"></label>
+      </div>
+      <footer>
+        <button class="button" value="cancel">Отмена</button>
+        <button class="button button-primary" value="cancel" id="openInvoiceButton">Открыть</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="generateInvoiceModal">
+    <form method="dialog" class="modal">
+      <header>
+        <div>
+          <h2>Создать invoice</h2>
+          <p>Admin JWT + internal API key.</p>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Закрыть">×</button>
+      </header>
+      <div class="modal-body">
+        <label>User ID<input id="billUserId" value="2" inputmode="numeric"></label>
+        <label>Billing period<input id="billPeriod" value="2026-05"></label>
+        <label>X-Internal-API-Key<input id="internalKey" type="password" placeholder="из .env"></label>
+      </div>
+      <footer>
+        <button class="button" value="cancel">Отмена</button>
+        <button class="button button-primary" value="cancel" id="generateInvoiceButton">Создать</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <section id="console" class="console" aria-label="Ответ API">
+    <button class="console-head" type="button" id="consoleToggle">
+      <span>Ответ API</span>
+      <span>⌃</span>
+    </button>
+    <pre id="output">готово к проверке сценария</pre>
+  </section>
+
+  <div id="toast" class="toast"></div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
